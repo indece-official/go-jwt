@@ -1,6 +1,8 @@
 # go-jwt
 JWT Parser, Signer and JWKS-Loader with support for post-quantum-cryptography (PQC)
 
+[![GoDoc](https://godoc.org/github.com/indece-official/go-jwt?status.svg)](https://godoc.org/github.com/indece-official/go-jwt) 
+
 ## Supported algorithms
 | Algorithm | PQC | `alg` header | Signatur size (base64 encoded) |
 | --- | --- | --- | --- |
