@@ -3,7 +3,7 @@ JWT Parser, Signer and JWKS-Loader with support for post-quantum-cryptography (P
 
 ## Supported algorithms
 | Algorithm | PQC | `alg` header | Signatur size (base64 encoded) |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | RSA 256 | No | `RS256` | 683 b (4096 bit key) | 
 | RSA 384 | No | `RS384` | 683 b (4096 bit key) | 
 | RSA 512 | No | `RS512` | 683 b (4096 bit key) | 
