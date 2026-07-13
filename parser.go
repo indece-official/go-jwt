@@ -245,6 +245,7 @@ func (p *Parser[H, C]) Validate(token *Token[H, C]) error {
 	return nil
 }
 
+// Parse parses a JWT as string into a *Token[H, C]
 func (p *Parser[H, C]) Parse(tokenStr string, token *Token[H, C]) error {
 	token.Valid = false
 
@@ -343,13 +344,14 @@ func ParserWithSigningMethods[H Header, C Claims](signingMethods ...SigningMetho
 func NewParser[H Header, C Claims](options ...ParserOption[H, C]) *Parser[H, C] {
 	parser := &Parser[H, C]{
 		signingMethods: map[string]SigningMethod{
-			SigningMethodES256.Alg(): SigningMethodES256,
-			SigningMethodES384.Alg(): SigningMethodES384,
-			SigningMethodES512.Alg(): SigningMethodES512,
-			SigningMethodRS256.Alg(): SigningMethodRS256,
-			SigningMethodRS384.Alg(): SigningMethodRS384,
-			SigningMethodRS512.Alg(): SigningMethodRS512,
-			SigningMethodEdDSA.Alg(): SigningMethodEdDSA,
+			SigningMethodES256.Alg():   SigningMethodES256,
+			SigningMethodES384.Alg():   SigningMethodES384,
+			SigningMethodES512.Alg():   SigningMethodES512,
+			SigningMethodRS256.Alg():   SigningMethodRS256,
+			SigningMethodRS384.Alg():   SigningMethodRS384,
+			SigningMethodRS512.Alg():   SigningMethodRS512,
+			SigningMethodEdDSA.Alg():   SigningMethodEdDSA,
+			SigningMethodMLDSA87.Alg(): SigningMethodMLDSA87,
 		},
 		keyFunc: func(t *Token[H, C]) (interface{}, error) {
 			return nil, ErrInvalidKeyType

@@ -1,24 +1,24 @@
 package jwt
 
 import (
+	"crypto/ed25519"
 	"crypto/rand"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/cloudflare/circl/sign/mldsa/mldsa87"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSignParseTokenMLDSA87(t *testing.T) {
-	publicKey, privateKey, err := mldsa87.GenerateKey(rand.Reader)
+func TestSignParseTokenEdDSA(t *testing.T) {
+	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
 	assert.NoError(t, err)
 
 	signer := NewSigner(
 		SignerWithKeyFunc(func(t *Token[*StdHeader, *StdClaims]) (interface{}, error) {
 			return privateKey, nil
 		}),
-		SignerWithSigningMethods[*StdHeader, *StdClaims](SigningMethodMLDSA87),
+		SignerWithSigningMethods[*StdHeader, *StdClaims](SigningMethodEdDSA),
 		SignerWithIssuer[*StdHeader, *StdClaims]("testissuer"),
 	)
 
@@ -26,13 +26,13 @@ func TestSignParseTokenMLDSA87(t *testing.T) {
 		ParserWithKeyFunc(func(t *Token[*StdHeader, *StdClaims]) (interface{}, error) {
 			return publicKey, nil
 		}),
-		ParserWithSigningMethods[*StdHeader, *StdClaims](SigningMethodMLDSA87),
+		ParserWithSigningMethods[*StdHeader, *StdClaims](SigningMethodEdDSA),
 		ParserWithAudience[*StdHeader, *StdClaims]("testaudience"),
 		ParserWithIssuer[*StdHeader, *StdClaims]("testissuer"),
 	)
 
 	token := NewStdToken()
-	token.Header.Alg = SigningMethodMLDSA87.Alg()
+	token.Header.Alg = SigningMethodEdDSA.Alg()
 	token.Claims.IssuedAt = NewNumericDate(time.Now())
 	token.Claims.NotBefore = NewNumericDate(time.Now())
 	token.Claims.ExpirationTime = NewNumericDate(time.Now().Add(10 * time.Second))
@@ -43,12 +43,12 @@ func TestSignParseTokenMLDSA87(t *testing.T) {
 	assert.NoError(t, err)
 	tokenParts := strings.Split(signedToken, ".")
 	assert.Len(t, tokenParts, 3)
-	assert.Len(t, tokenParts[2], 6170)
+	assert.Len(t, tokenParts[2], 86)
 
 	parsedToken := NewStdToken()
 
 	err = parser.Parse(signedToken, parsedToken)
 	assert.NoError(t, err)
-	assert.Equal(t, "MLDSA87", parsedToken.Header.Alg)
+	assert.Equal(t, "EdDSA", parsedToken.Header.Alg)
 	assert.Equal(t, "usr-01", parsedToken.Claims.Subject)
 }

@@ -95,13 +95,14 @@ func SignerWithIssuer[H Header, C Claims](issuer string) SignerOption[H, C] {
 func NewSigner[H Header, C Claims](options ...SignerOption[H, C]) *Signer[H, C] {
 	signer := &Signer[H, C]{
 		signingMethods: map[string]SigningMethod{
-			SigningMethodES256.Alg(): SigningMethodES256,
-			SigningMethodES384.Alg(): SigningMethodES384,
-			SigningMethodES512.Alg(): SigningMethodES512,
-			SigningMethodRS256.Alg(): SigningMethodRS256,
-			SigningMethodRS384.Alg(): SigningMethodRS384,
-			SigningMethodRS512.Alg(): SigningMethodRS512,
-			SigningMethodEdDSA.Alg(): SigningMethodEdDSA,
+			SigningMethodES256.Alg():   SigningMethodES256,
+			SigningMethodES384.Alg():   SigningMethodES384,
+			SigningMethodES512.Alg():   SigningMethodES512,
+			SigningMethodRS256.Alg():   SigningMethodRS256,
+			SigningMethodRS384.Alg():   SigningMethodRS384,
+			SigningMethodRS512.Alg():   SigningMethodRS512,
+			SigningMethodEdDSA.Alg():   SigningMethodEdDSA,
+			SigningMethodMLDSA87.Alg(): SigningMethodMLDSA87,
 		},
 		keyFunc: func(t *Token[H, C]) (interface{}, error) {
 			return nil, ErrInvalidKeyType

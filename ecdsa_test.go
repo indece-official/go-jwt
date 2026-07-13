@@ -1,8 +1,9 @@
 package jwt
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/rsa"
 	"strings"
 	"testing"
 	"time"
@@ -10,31 +11,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSignParseTokenRS5256(t *testing.T) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+func TestSignParseTokenES256(t *testing.T) {
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	assert.NoError(t, err)
-
-	publicKey := privateKey.Public()
 
 	signer := NewSigner(
 		SignerWithKeyFunc(func(t *Token[*StdHeader, *StdClaims]) (interface{}, error) {
 			return privateKey, nil
 		}),
-		SignerWithSigningMethods[*StdHeader, *StdClaims](SigningMethodRS256),
+		SignerWithSigningMethods[*StdHeader, *StdClaims](SigningMethodES256),
 		SignerWithIssuer[*StdHeader, *StdClaims]("testissuer"),
 	)
 
 	parser := NewParser(
 		ParserWithKeyFunc(func(t *Token[*StdHeader, *StdClaims]) (interface{}, error) {
-			return publicKey, nil
+			return &privateKey.PublicKey, nil
 		}),
-		ParserWithSigningMethods[*StdHeader, *StdClaims](SigningMethodRS256),
+		ParserWithSigningMethods[*StdHeader, *StdClaims](SigningMethodES256),
 		ParserWithAudience[*StdHeader, *StdClaims]("testaudience"),
 		ParserWithIssuer[*StdHeader, *StdClaims]("testissuer"),
 	)
 
 	token := NewStdToken()
-	token.Header.Alg = SigningMethodRS256.Alg()
+	token.Header.Alg = SigningMethodES256.Alg()
 	token.Claims.IssuedAt = NewNumericDate(time.Now())
 	token.Claims.NotBefore = NewNumericDate(time.Now())
 	token.Claims.ExpirationTime = NewNumericDate(time.Now().Add(10 * time.Second))
@@ -45,41 +44,39 @@ func TestSignParseTokenRS5256(t *testing.T) {
 	assert.NoError(t, err)
 	tokenParts := strings.Split(signedToken, ".")
 	assert.Len(t, tokenParts, 3)
-	assert.Len(t, tokenParts[2], 683)
+	assert.Len(t, tokenParts[2], 86)
 
 	parsedToken := NewStdToken()
 
 	err = parser.Parse(signedToken, parsedToken)
 	assert.NoError(t, err)
-	assert.Equal(t, "RS256", parsedToken.Header.Alg)
+	assert.Equal(t, "ES256", parsedToken.Header.Alg)
 	assert.Equal(t, "usr-01", parsedToken.Claims.Subject)
 }
 
-func TestSignParseTokenRS384(t *testing.T) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+func TestSignParseTokenES384(t *testing.T) {
+	privateKey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	assert.NoError(t, err)
-
-	publicKey := privateKey.Public()
 
 	signer := NewSigner(
 		SignerWithKeyFunc(func(t *Token[*StdHeader, *StdClaims]) (interface{}, error) {
 			return privateKey, nil
 		}),
-		SignerWithSigningMethods[*StdHeader, *StdClaims](SigningMethodRS384),
+		SignerWithSigningMethods[*StdHeader, *StdClaims](SigningMethodES384),
 		SignerWithIssuer[*StdHeader, *StdClaims]("testissuer"),
 	)
 
 	parser := NewParser(
 		ParserWithKeyFunc(func(t *Token[*StdHeader, *StdClaims]) (interface{}, error) {
-			return publicKey, nil
+			return &privateKey.PublicKey, nil
 		}),
-		ParserWithSigningMethods[*StdHeader, *StdClaims](SigningMethodRS384),
+		ParserWithSigningMethods[*StdHeader, *StdClaims](SigningMethodES384),
 		ParserWithAudience[*StdHeader, *StdClaims]("testaudience"),
 		ParserWithIssuer[*StdHeader, *StdClaims]("testissuer"),
 	)
 
 	token := NewStdToken()
-	token.Header.Alg = SigningMethodRS384.Alg()
+	token.Header.Alg = SigningMethodES384.Alg()
 	token.Claims.IssuedAt = NewNumericDate(time.Now())
 	token.Claims.NotBefore = NewNumericDate(time.Now())
 	token.Claims.ExpirationTime = NewNumericDate(time.Now().Add(10 * time.Second))
@@ -90,41 +87,39 @@ func TestSignParseTokenRS384(t *testing.T) {
 	assert.NoError(t, err)
 	tokenParts := strings.Split(signedToken, ".")
 	assert.Len(t, tokenParts, 3)
-	assert.Len(t, tokenParts[2], 683)
+	assert.Len(t, tokenParts[2], 128)
 
 	parsedToken := NewStdToken()
 
 	err = parser.Parse(signedToken, parsedToken)
 	assert.NoError(t, err)
-	assert.Equal(t, "RS384", parsedToken.Header.Alg)
+	assert.Equal(t, "ES384", parsedToken.Header.Alg)
 	assert.Equal(t, "usr-01", parsedToken.Claims.Subject)
 }
 
-func TestSignParseTokenRS512(t *testing.T) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+func TestSignParseTokenES512(t *testing.T) {
+	privateKey, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	assert.NoError(t, err)
-
-	publicKey := privateKey.Public()
 
 	signer := NewSigner(
 		SignerWithKeyFunc(func(t *Token[*StdHeader, *StdClaims]) (interface{}, error) {
 			return privateKey, nil
 		}),
-		SignerWithSigningMethods[*StdHeader, *StdClaims](SigningMethodRS512),
+		SignerWithSigningMethods[*StdHeader, *StdClaims](SigningMethodES512),
 		SignerWithIssuer[*StdHeader, *StdClaims]("testissuer"),
 	)
 
 	parser := NewParser(
 		ParserWithKeyFunc(func(t *Token[*StdHeader, *StdClaims]) (interface{}, error) {
-			return publicKey, nil
+			return &privateKey.PublicKey, nil
 		}),
-		ParserWithSigningMethods[*StdHeader, *StdClaims](SigningMethodRS512),
+		ParserWithSigningMethods[*StdHeader, *StdClaims](SigningMethodES512),
 		ParserWithAudience[*StdHeader, *StdClaims]("testaudience"),
 		ParserWithIssuer[*StdHeader, *StdClaims]("testissuer"),
 	)
 
 	token := NewStdToken()
-	token.Header.Alg = SigningMethodRS512.Alg()
+	token.Header.Alg = SigningMethodES512.Alg()
 	token.Claims.IssuedAt = NewNumericDate(time.Now())
 	token.Claims.NotBefore = NewNumericDate(time.Now())
 	token.Claims.ExpirationTime = NewNumericDate(time.Now().Add(10 * time.Second))
@@ -135,12 +130,12 @@ func TestSignParseTokenRS512(t *testing.T) {
 	assert.NoError(t, err)
 	tokenParts := strings.Split(signedToken, ".")
 	assert.Len(t, tokenParts, 3)
-	assert.Len(t, tokenParts[2], 683)
+	assert.Len(t, tokenParts[2], 176)
 
 	parsedToken := NewStdToken()
 
 	err = parser.Parse(signedToken, parsedToken)
 	assert.NoError(t, err)
-	assert.Equal(t, "RS512", parsedToken.Header.Alg)
+	assert.Equal(t, "ES512", parsedToken.Header.Alg)
 	assert.Equal(t, "usr-01", parsedToken.Claims.Subject)
 }
